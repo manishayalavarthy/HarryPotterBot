@@ -39,14 +39,13 @@ def select_hp_line():
 	while not valid_line:
 		line = random.choice(lines)
 		if len(line) > 140:	# line cannot be more than 140 (and cannot be 0)
-			line = re.findall('.{%d}' % 140, line)
+			line = line[0:140]
 		elif len(line) == 0:
 			continue;
 		elif line == line.upper():	# a line in all caps is a chapter name (we don't want chapters)
 			continue;
 		valid_line = True
 	return line
-
 
 ##
 # Main script
