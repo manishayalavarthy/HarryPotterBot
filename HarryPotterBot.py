@@ -1,6 +1,8 @@
-import tweepy
 import random
 import time
+import os
+
+import tweepy
 
 ##
 # Variables
@@ -16,16 +18,19 @@ auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 api = tweepy.API(auth)
 
-# LOCAL VARIABLES
-BOOK_TITLE = 'HarryPotterBook'
-
 ##
 # Methods
 ##
 def select_hp_line():
-	book = BOOK_TITLE + str(random.randint(1, 5))
+	books = []
+	for root, dir, files in os.walk('.'):
+		for file in files:
+			if 'book' in file.lower():
+				books.append(file)
+	book = random.choice(books)
+
 	lines = []
-	print book
+	
 	with open(book, 'r') as f:
 		lines = f.readlines()
 
