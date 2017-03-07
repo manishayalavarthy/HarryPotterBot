@@ -56,7 +56,7 @@ while True:
 
 	try:
 		print line  # local console check to see if line is valid
-		# api.update_status(status=line) 
+		api.update_status(status=line) 
 		# api.update_with_media(filename,line) # tweets pictures
 	except tweepy.error.TweepError as e:
 		print e
