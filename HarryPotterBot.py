@@ -1,7 +1,7 @@
 import random
 import time
 import os
-import re
+
 import tweepy
 
 ##
@@ -22,14 +22,15 @@ api = tweepy.API(auth)
 ##
 def select_hp_line():
 	books = []
+	# find all files in directory that have 'book' in its name
 	for root, dir, files in os.walk('.'):
 		for file in files:
 			if 'book' in file.lower():
 				books.append(file)
-	book = random.choice(books)
 
+	# select a random book from the collection of HarryPotterBook files and read lines
+	book = random.choice(books)
 	lines = []
-	
 	with open(book, 'r') as f:
 		lines = f.readlines()
 
@@ -38,9 +39,9 @@ def select_hp_line():
 	line = ''
 	while not valid_line:
 		line = random.choice(lines)
-		if len(line) > 140:	# line cannot be more than 140 (and cannot be 0)
+		if len(line) > 140:	# a tweet cannot be more than 140 characters
 			line = line[0:140]
-		elif len(line) == 0:
+		elif len(line) == 0:	# a line should not contain no characters
 			continue;
 		elif line == line.upper():	# a line in all caps is a chapter name (we don't want chapters)
 			continue;
@@ -55,8 +56,9 @@ while True:
 
 	try:
 		print line  # local console check to see if line is valid
-		api.update_status(status=line) 
+		# api.update_status(status=line) 
 		# api.update_with_media(filename,line) # tweets pictures
-	except tweepy.error.TweepError:
+	except tweepy.error.TweepError as e:
+		print e
 		pass
-	time.sleep(600)	# run every 10 minutes
+	time.sleep(5)	# run every 10 minutes
