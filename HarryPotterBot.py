@@ -1,19 +1,18 @@
 import random
 import time
 import os
-
+import re
 import tweepy
 
 ##
 # Variables
 ##
 # TWEEPY STUFF
-# TODO: @Manisha - change the account that the twitter bot is linked to so when we run the bot, it doesn't post on your account.
 # enter the corresponding information from your Twitter application:
-CONSUMER_KEY = '84ManyyJVzyDW5ytFdQIJDbT3'	# keep the quotes, replace this with your consumer key
-CONSUMER_SECRET = 'oU8JQ04NmA7sUryDpBKEWFVcFqn8DM3faD9EqVDW4KY8uw829Q'	#k eep the quotes, replace this with your consumer secret key
-ACCESS_KEY = '247966969-sFtBF0QsU7DiKlKNPlHxMjjK6tDwAx3RXb2rdlZu'	# keep the quotes, replace this with your access token
-ACCESS_SECRET = '87v0FSBl6igW4AWCtVzdefvugcS9KzcKPvvv02ShJLpfH'	# keep the quotes, replace this with your access token secret
+CONSUMER_KEY = 'pMoKjbV5ljdVlyzcsRtVcYOff'	# keep the quotes, replace this with your consumer key
+CONSUMER_SECRET = '7tOh0Sq5gTQSQMHdEs8t7G7GXozqpHtrYFHqNM5qQbeSU0RZUX'	#k eep the quotes, replace this with your consumer secret key
+ACCESS_KEY = '839020700471963648-7bsrQirguu24DZi9VEOu2bM7MS37mhX'	# keep the quotes, replace this with your access token
+ACCESS_SECRET = 'eMwinILJVcHR9tyHAnY0SUlSIYx524YPeOCSR6te2c5UQ'	# keep the quotes, replace this with your access token secret
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 api = tweepy.API(auth)
@@ -39,7 +38,9 @@ def select_hp_line():
 	line = ''
 	while not valid_line:
 		line = random.choice(lines)
-		if len(line) > 140 or len(line) == 0:	# line cannot be more than 140 (and cannot be 0)
+		if len(line) > 140:	# line cannot be more than 140 (and cannot be 0)
+			line = re.findall('.{%d}' % 140, line)
+		elif len(line) == 0:
 			continue;
 		elif line == line.upper():	# a line in all caps is a chapter name (we don't want chapters)
 			continue;
@@ -55,8 +56,8 @@ while True:
 
 	try:
 		print line  # local console check to see if line is valid
-		# api.update_status(status=line) 
+		api.update_status(status=line) 
 		# api.update_with_media(filename,line) # tweets pictures
 	except tweepy.error.TweepError:
 		pass
-	time.sleep(10)	# run every 10 seconds
+	time.sleep(600)	# run every 10 minutes
