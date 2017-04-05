@@ -6,7 +6,7 @@ import pickle
 
 import tweepy
 import markovify
-import nltk
+
 
 ##
 # Variables
@@ -51,7 +51,6 @@ def read_books(parse_quotes=False, create_char_dicts=False):
 	"""
 	This method reads books from the list of files in books and stores the content of each book into a dictionary
 	books_content. 
-
 	@param parse_quotes: 
 	"""
 	# store into a dictionary of books and content with book file name as key 
@@ -72,7 +71,6 @@ def _parse_quotes(content):
 	"""
 	This private method looks through all the lines of a series (list) of lines from a book and removes
 	any lines that are not quotes. 
-
 	:param: content: content of a book 
 	:return: content: quotes within the content of a book
 	"""
@@ -89,7 +87,6 @@ def _create_char_line_dicts(quotes_content):
 	"""
 	This method attempts to parse through a book (list of lines) and append to the global dictionary
 	of quotes belonging to certain key characters.
-
 	:param quotes_content: list of lines (represented as strings)
 	"""
 	for line in quotes_content:
@@ -111,7 +108,6 @@ def _create_char_line_dicts(quotes_content):
 def _extract_speaker_from_text(text):
 	"""
 	This method takes in a section of text and returns the name(s) of persons (or at least most Proper nouns) in the text.
-
 	:param text: input text to extract speaker from (text not surrounded by quotes)
 	:return: list of str names
 	"""
@@ -157,31 +153,6 @@ def _extract_speaker_from_text(text):
 		proper_nouns.append('Other')
 	return proper_nouns
 
-def select_hp_line():
-	"""
-	Selects a random line of text from a random hp book.
-	"""
-
-	# select a random book from the collection of HarryPotterBook files and read lines
-	book = random.choice(books)
-	lines = []
-	with open(book, 'r') as f:
-		lines = f.readlines()
-
-	# select a semi random line that fits certain criteria
-	valid_line = False
-	line = ''
-	while not valid_line:
-		line = random.choice(lines)
-		if len(line) > 140:	# a tweet cannot be more than 140 characters
-			line = line[0:140]
-		elif len(line) == 0:	# a line should not contain no characters
-			continue;
-		elif line == line.upper():	# a line in all caps is a chapter name (we don't want chapters)
-			continue;
-		valid_line = True
-	return line
-
 ##
 # Main script
 ##
@@ -194,9 +165,7 @@ else:
 	read_books(parse_quotes=True, create_char_dicts=True)
 	pickle.dump(characters_lines, open(PICKLE_FILEPATH, 'wb'))
 
-
-# markovify and make tweepy API calls and post tweet
-while True:
+def call_hp_character_quotes():
 	selected_char = random.choice(characters_lines.keys())	# choose a random character
 
 	# build the model
@@ -204,14 +173,45 @@ while True:
 
 	# create line
 	line = '"' + quote_model.make_short_sentence(125) + '" - ' + selected_char
+	print 'CURRENT CHAR = ' + selected_char
+	return line
+
+def print_hp_quotes():
+	books = []
+	for root, dir, files in os.walk('.'):
+		for file in files:
+			if 'book' in file.lower():
+				books.append(file)
+	book = random.choice(books)
+
+	# Get raw text as string.
+	with open(book) as f:
+		text = f.read()
+
+	# Build the mobel.
+	text_model = markovify.Text(text)
+
+	hpline = text_model.make_short_sentence(140)
+	return hpline
+
+# markovify and make tweepy API calls and post tweet
+while True:
+
 
 	try:
 		# local console output
-		print 'CURRENT CHAR = ' + selected_char
-		print line
+		randomNum = random.randint(1, 1000)
+		if randomNum % 2 == 0:
+			line = print_hp_quotes()
+			api.update_status(status=line) 
+		else:
+			line = call_hp_character_quotes()
+			api.update_status(status=line) 
+		# print 'CURRENT CHAR = ' + selected_char
+		# print line
 
 		# tweet post
-		api.update_status(status=line) 
+		# api.update_status(status=line) 
 		# api.update_with_media(filename,line) # tweets pictures
 	except tweepy.error.TweepError as e:
 		print e
